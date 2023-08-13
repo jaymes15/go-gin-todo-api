@@ -34,7 +34,7 @@ func (userRespository *UserRespository) Create(user UserModel) (UserModel, error
 	return newUser, nil
 }
 
-func (userRepository *UserRespository) FindByID(id int) UserModel {
+func (userRepository *UserRespository) FindByID(id uint) UserModel {
 	var user UserModel
 
 	userRepository.DB.First(&user, "id = ?", id)

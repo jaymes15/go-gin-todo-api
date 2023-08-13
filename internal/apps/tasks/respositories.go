@@ -1,7 +1,6 @@
 package tasks
 
 import (
-	"fmt"
 	"log"
 	"todo/pkg/database"
 
@@ -21,8 +20,6 @@ func NewTaskRespository() *TaskRespository {
 
 func (taskRespository *TaskRespository) List(userID uint) []TaskModel {
 	var allTask []TaskModel
-
-	fmt.Println("userID:::::", userID)
 
 	taskRespository.DB.Where("user_id = ?", userID).Order("created_at").Find(&allTask)
 

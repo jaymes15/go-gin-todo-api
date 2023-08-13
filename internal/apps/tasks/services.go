@@ -2,9 +2,7 @@ package tasks
 
 import (
 	"errors"
-	"strconv"
 	"todo/internal/apps/users"
-	"todo/pkg/sessions"
 
 	"github.com/gin-gonic/gin"
 )
@@ -20,28 +18,34 @@ func NewTaskService() *TaskService {
 }
 
 func (taskService *TaskService) GetAllTask(c *gin.Context) TasksRes {
-	authID := sessions.Get(c, "auth")
-	userID, _ := strconv.Atoi(authID)
-	user := users.NewUserRespository().FindByID(userID)
 
-	if user.ID == 0 {
+	user, isValidUser := c.Get("user")
+
+	if !isValidUser {
+		return TasksRes{
+			Data: []TaskRes{},
+		}
+	}
+
+	if user.(users.UserModel).ID == 0 {
 
 		return TasksRes{
 			Data: []TaskRes{},
 		}
 	}
-	allTask := taskService.taskRespository.List(user.ID)
+	allTask := taskService.taskRespository.List(user.(users.UserModel).ID)
 	return ToTasks(allTask)
 }
 
 func (taskService *TaskService) CreateTask(c *gin.Context, request CreateTask) (TaskRes, error) {
 	var response TaskRes
 
-	authID := sessions.Get(c, "auth")
-	userID, _ := strconv.Atoi(authID)
-	user := users.NewUserRespository().FindByID(userID)
+	user, isValidUser := c.Get("user")
+	if !isValidUser {
+		return response, errors.New("user not found")
+	}
 
-	if user.ID == 0 {
+	if user.(users.UserModel).ID == 0 {
 		return response, errors.New("task could not be created, user not found")
 	}
 
@@ -49,7 +53,7 @@ func (taskService *TaskService) CreateTask(c *gin.Context, request CreateTask) (
 		Title:     request.Title,
 		Content:   request.Content,
 		Completed: request.Completed,
-		UserId:    user.ID,
+		UserId:    user.(users.UserModel).ID,
 	}
 
 	task := taskService.taskRespository.Create(newTask)
@@ -64,16 +68,23 @@ func (taskService *TaskService) CreateTask(c *gin.Context, request CreateTask) (
 func (taskService *TaskService) UpdateTask(taskId uint, request UpdateTask, c *gin.Context) (TaskRes, error) {
 	var response TaskRes
 
-	authID := sessions.Get(c, "auth")
-	userID, _ := strconv.Atoi(authID)
-	user := users.NewUserRespository().FindByID(userID)
+	// authID := sessions.Get(c, "auth")
+	// userID, _ := strconv.Atoi(authID)
+	// user := users.NewUserRespository().FindByID(userID)
 
-	if user.ID == 0 {
+	// if user.ID == 0 {
+	// 	return response, errors.New("user not found")
+	// }
+
+	user, isValidUser := c.Get("user")
+
+	if !isValidUser {
 		return response, errors.New("user not found")
 	}
+
 	retrievedTask := taskService.taskRespository.GetTaskById(taskId)
 
-	if userID != int(retrievedTask.UserId) {
+	if int(user.(users.UserModel).ID) != int(retrievedTask.UserId) {
 		return response, errors.New("UnAuthorized")
 	}
 

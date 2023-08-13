@@ -10,7 +10,7 @@ func Routes(router *gin.Engine) {
 	taskController := NewTaskController()
 
 	authGroup := router.Group("/tasks")
-	authGroup.Use(middlewares.IsAuth())
+	authGroup.Use(middlewares.ValidateAuth())
 	{
 		authGroup.GET("/", taskController.AllTask)
 		authGroup.POST("/", taskController.Create)

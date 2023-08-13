@@ -3,7 +3,7 @@ package users
 import (
 	"log"
 	"net/http"
-	"strconv"
+	"todo/internal/apps/helpers"
 	"todo/pkg/sessions"
 
 	"github.com/gin-gonic/gin"
@@ -65,9 +65,17 @@ func (authController *AuthController) Login(c *gin.Context) {
 		return
 	}
 
-	sessions.Set(c, "auth", strconv.Itoa(int(user.ID)))
+	// sessions.Set(c, "auth", strconv.Itoa(int(user.ID)))
+	jwtToken, err := helpers.SetAuthtoken(c, user.ID)
 
-	c.JSON(http.StatusCreated, gin.H{"user": user})
+	if err != nil {
+		log.Printf("Error:::::: %s", err.Error())
+
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{"user": user, "token": jwtToken})
 }
 
 func (authController *AuthController) HandleLogout(c *gin.Context) {
