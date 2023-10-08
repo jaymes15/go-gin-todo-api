@@ -36,11 +36,15 @@ func ValidateAuth() gin.HandlerFunc {
 
 	return func(c *gin.Context) {
 		tokenString, err := c.Cookie("Authorization")
+
 		if err != nil {
-			log.Println("Error in ValidateAuth function: ", err.Error())
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
-			c.Abort()
-			return
+			tokenString = c.GetHeader("Authorization")
+			if tokenString == "" {
+				log.Println("Error in ValidateAuth function: ", err.Error())
+				c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+				c.Abort()
+				return
+			}
 		}
 		userId, err := custom_jwt.ValidateJWT(tokenString)
 

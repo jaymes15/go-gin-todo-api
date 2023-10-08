@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"todo/internal/apps/chat"
 	"todo/internal/apps/tasks"
 	"todo/internal/apps/users"
 
@@ -11,5 +12,6 @@ func Routes(router *gin.Engine) {
 
 	tasks.Routes(router)
 	users.Routes(router)
+	chat.Routes(router)
 
 }

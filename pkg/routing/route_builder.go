@@ -1,6 +1,7 @@
 package routing
 
 import (
+	"todo/pkg/cors"
 	"todo/pkg/sessions"
 	"todo/pkg/static"
 )
@@ -10,6 +11,7 @@ func RouteBuilder() {
 	route := GetRouter()
 	sessions.Init(route)
 	static.LoadStatic(route)
+	cors.UseCors(route)
 	RegisterRoutes(route)
 	Serve(route)
 
